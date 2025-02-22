@@ -1,0 +1,23 @@
+{
+  "name": "moniepoint-hackathon",
+  "version": "1.0.0",
+  "description": "moniepoint-hackathon",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Barnabas19/moniepoint-hackathon.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Barnabas19/moniepoint-hackathon/issues"
+  },
+  "homepage": "https://github.com/Barnabas19/moniepoint-hackathon#readme",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
