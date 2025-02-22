@@ -1,10 +1,11 @@
 // THESE CONTROLLERS ARE RESPONSIBLE FOR PROVIDING THE METRICS (ANALYTICS)
 import mongoose from 'mongoose';
-const fs = require('fs')
-const readline = require('readline')
+import fs from 'fs';
+import readline from 'readline';
+import File from '../models/file'
 
 
-//HIGHEST SALES VOLUME
+//HIGHEST SALES VOLUME IN A DAY
 export const highestSalesVolume = async (req, res) => {
 
     try {
@@ -12,12 +13,12 @@ export const highestSalesVolume = async (req, res) => {
         //ASSUME THE YEAR IS PROVIDED IN THE req.body FROM FRONTEND
         const { year } = req.body
 
-        //RETRIEVE ALL TEXT FILES FROM THE DATABASE
         const salesVolumes = { }
         const highestSalesVolume = -Infinity
         const highestSalesFile = null
 
-        const allTextFiles = await fileDoc.find({ year: year })
+        //RETRIEVE ALL TEXT FILES FROM THE DATABASE FOR THAT YEAR
+        const allTextFiles = await File.find({ year: year })
 
         allTextFiles.forEach(async (file) => {
             const fileStream = fs.createReadStream(file.originalName)
@@ -45,10 +46,7 @@ export const highestSalesVolume = async (req, res) => {
                 }
 
                 //EXTRACT THE PRODUCTS SOLD
-                const salesStaffID = parts[0].trim()
-                const transactionTime = parts[1].trim()
                 let productsSoldStr = parts[2].trim()
-                const saleAmount = parts[3].trim()
 
                 if (productsSoldStr.startsWith('"') && productsSoldStr.endsWith('"')){
                     productsSoldStr = productsSoldStr.slice(1, -1)
@@ -81,7 +79,7 @@ export const highestSalesVolume = async (req, res) => {
             }
         }
 
-        const HIGHEST_SALES_FILE = await fileDoc.find({ originalName: highestSalesFile })
+        const HIGHEST_SALES_FILE = await File.find({ originalName: highestSalesFile })
 
         res.status(200).json({
             highest_sales_volume: `Highest sales volume in a day is: ${highestSalesVolume} which occurred on ${HIGHEST_SALES_FILE.timestamp}`
@@ -96,7 +94,7 @@ export const highestSalesVolume = async (req, res) => {
 
 
 
-//HIGHEST SALES VALUE
+//HIGHEST SALES VALUE IN A DAY
 export const highestSalesValue = async (req, res) => {
 
 
@@ -104,12 +102,12 @@ export const highestSalesValue = async (req, res) => {
         //ASSUME THE YEAR IS PROVIDED IN THE req.body FROM FRONTEND
         const { year } = req.body
 
-        //RETRIEVE ALL TEXT FILES FROM THE DATABASE
         const salesAmounts = { }
         const highestSalesAmount = -Infinity
         const highestSalesAmountFile = null
 
-        const allTextFilesForDay = await fileDoc.find({ year: year })
+        //RETRIEVE ALL TEXT FILES FROM THE DATABASE
+        const allTextFilesForDay = await File.find({ year: year })
 
         allTextFilesForDay.array.forEach(async (file) => {
             const fileStream = fs.createReadStream(file.originalName)
@@ -155,7 +153,7 @@ export const highestSalesValue = async (req, res) => {
                 }
             }
 
-            const HIGHEST_SALES_FILE = await fileDoc.find({ originalName: highestSalesAmountFile })
+            const HIGHEST_SALES_FILE = await File.find({ originalName: highestSalesAmountFile })
 
             res.status(200).json({
                 highest_sales_value: `Highest sales value in a day is: ${highestSalesAmount} which occurred on ${HIGHEST_SALES_FILE.timestamp}`
@@ -184,7 +182,7 @@ export const mostSoldProductID = async (req, res) => {
         const mostSoldProductQuantity = -Infinity
 
         //RETRIEVE ALL TEXT FILES FROM THE DATABASE
-        const allTextFiles = await fileDoc.find({ year: year })
+        const allTextFiles = await File.find({ year: year })
 
         allTextFiles.forEach(async (file) => {
             const fileStream = fs.createReadStream(file.originalName)
@@ -260,6 +258,7 @@ export const highestSalesStaffID = async (req, res) => {
     try {
       //ASSUME THE YEAR IS PROVIDED IN THE req.body FROM FRONTEND
       const { year } = req.body
+
       const salesStaffIDs = {}
 
       const highest_staff_ID_per_month = { }
@@ -268,7 +267,7 @@ export const highestSalesStaffID = async (req, res) => {
       const months = ["01","02","03","04","05","06","07","08","09","10","11","12"]
 
       for (let month in months){
-        const allTextFiles = await fileDoc.find({ year: year, month: month })
+        const allTextFiles = await File.find({ year: year, month: month })
 
         allTextFiles.forEach(async (file) => {
             const fileStream = fs.createReadStream(file.originalName)
@@ -317,12 +316,13 @@ export const highestSalesStaffID = async (req, res) => {
         //set the highest salesStaffID for that month
         highest_staff_ID_per_month[month] = highestSalesAmount
       } 
+
+      //send the object to the frontend
+      res.status(200).json({ highest_staff_ID_per_month })
     }
     catch(error){
         console.log(error)
 
-        //send the object to the frontend
-        res.status(500).json({ highest_staff_ID_per_month })
     }
 }
 
